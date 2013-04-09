@@ -61,13 +61,16 @@ if( !class_exists( 'expirepasswordpublic') ) {
 			$errors = new WP_Error();
 
 			$user_name = sanitize_user( $_POST['user_login'] );
+
+			// 1. Check the user exists
 			if ( $user = get_user_by('login', $user_name) ) {
-				// User exists - check the key is valid
-				// Check the passwords have been entered and that they match
+				// User exists - move forward
+
+				// 2. Check the passwords have been entered and that they match
 				if ( isset($_POST['pass1']) && $_POST['pass1'] != $_POST['pass2'] ) {
 					$errors->add( 'password_reset_mismatch', __( 'The passwords do not match.', 'expirepassword' ) );
 				} else {
-					// Check the password isn't the same as the last one
+					// 3. Check the password isn't the same as the last one
 					$existingpassword = $this->get_users_password_hash( $user->ID );
 					if( wp_check_password( $_POST['pass1'], $existingpassword ) ) {
 						// The password matches - we don't want them setting the same password as before...
@@ -77,6 +80,8 @@ if( !class_exists( 'expirepasswordpublic') ) {
 						$thekey = shrkey_get_usermeta_oncer( $user->ID, '_shrkey_password_expired_key' );
 						// Get and parse the passed key
 						$passedkey = preg_replace('/[^a-z0-9]/i', '', $_POST['key']);
+
+						// 4. Check the key matches
 						if( !empty( $thekey) && !empty($passedkey) && $thekey == $passedkey ) {
 							// The key is valid as well - so we need to reset these passwords
 							$this->reset_expired_password( $user, $_POST['pass1'] );
@@ -99,7 +104,7 @@ if( !class_exists( 'expirepasswordpublic') ) {
 				$errors->add( 'password_expired_nouser', __( 'Could not change password, please try again.', 'expirepassword' ) );
 			}
 
-			// Check for some errors here
+			// If we have errors then we need to display the form again
 			if( $errors->get_error_code() ) {
 				// If we don't have a user record create a fake one
 				if( !isset($user) || is_wp_error( $user ) ) {
