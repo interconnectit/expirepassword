@@ -1,2 +1,2 @@
-forcepasswordchange
+Expire Password
 ===================

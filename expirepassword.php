@@ -1,8 +1,8 @@
 <?php
 /*
-Plugin Name: Force Password Change
+Plugin Name: Expire Password
 Version: 1.0
-Plugin URI: https://github.com/shrkey/forcepasswordchange
+Plugin URI: https://github.com/shrkey/expirepassword
 Description: Forces a user to change their password, can be set to force a password change for a new user on first sign in
 Author: Shrkey
 Author URI: http://shrkey.com
@@ -29,8 +29,8 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 require_once('includes/functions.php');
 
 if( is_admin() ) {
-	require_once('classes/admin.forcepasswordchange.php');
+	require_once('classes/admin.expirepassword.php');
 }
 
 // We need to add this part all the time
-require_once('classes/public.forcepasswordchange.php');
+require_once('classes/public.expirepassword.php');
