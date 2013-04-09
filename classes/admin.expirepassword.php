@@ -62,7 +62,7 @@ if( !class_exists( 'expirepassword') ) {
 
 				switch( $action ) {
 
-					case 'userforcereauthenticate':			check_admin_referer( 'userforcereauthenticate' );
+					case 'userexpirepassword':				check_admin_referer( 'userexpirepassword' );
 															if( isset($_GET['user']) && is_numeric($_GET['user']) ) {
 																shrkey_set_usermeta_oncer( (int) $_GET['user'], '_shrkey_password_expired', time() );
 																wp_safe_redirect( add_query_arg( 'passwordexpirationmsg', 1, wp_get_referer() ) );
@@ -71,7 +71,7 @@ if( !class_exists( 'expirepassword') ) {
 															}
 															break;
 
-					case 'bulkuserforcereauthenticate':		if( is_multisite() && is_network_admin() ) {
+					case 'bulkuserexpirepassword':			if( is_multisite() && is_network_admin() ) {
 																check_admin_referer( 'bulk-users-network' );
 																if( isset($_POST['allusers']) ) {
 																	foreach( $_POST['allusers'] as $user ) {
@@ -102,7 +102,7 @@ if( !class_exists( 'expirepassword') ) {
 
 		function add_modify_bulk( $content ) {
 
-			$ouroption = "<option value='bulkuserforcereauthenticate'>" . __( 'Expire Password', 'expirepassword' ) . "</option>\n";
+			$ouroption = "<option value='bulkuserexpirepassword'>" . __( 'Expire Password', 'expirepassword' ) . "</option>\n";
 
 			if( is_multisite() && is_network_admin() ) {
 				$content = preg_replace( "/<option value='notspam'>" . __( 'Not Spam', 'user' ) . "<\/option>/", "<option value='notspam'>" . __( 'Not Spam', 'user' ) . "</option>\n" . $ouroption, $content );
