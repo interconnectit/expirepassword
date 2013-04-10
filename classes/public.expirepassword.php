@@ -60,7 +60,11 @@ if( !class_exists( 'expirepasswordpublic') ) {
 			// Create an errors object for us to use
 			$errors = new WP_Error();
 
-			$user_name = sanitize_user( $_POST['user_login'] );
+			if( isset( $_POST['user_login'] ) ) {
+				$user_name = sanitize_user( $_POST['user_login'] );
+			} else {
+				$user_name = '';
+			}
 
 			// 1. Check the user exists
 			if ( $user = get_user_by('login', $user_name) ) {
