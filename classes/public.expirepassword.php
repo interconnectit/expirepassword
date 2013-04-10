@@ -26,6 +26,16 @@ if( !class_exists( 'expirepasswordpublic') ) {
 			// 1. If a new user registers we want to force a password change
 			add_action( 'user_register', array( &$this, 'new_user_expiry' ) );
 
+			// 2. Check for each login of an existing user
+			add_filter( 'authenticate', array( &$this, 'add_expiration_stamp' ), 99, 3);
+
+			// 3. Add in timestamp resets if the user changes their password without prompting
+			add_action( 'password_reset', array( &$this, 'reset_password' ), 20, 2 );
+			add_action( 'expired_password_reset', array( &$this, 'reset_password') , 20, 2 );
+
+			add_action( 'user_profile_update_errors', array( &$this, 'update_profile') , 20, 3 );
+
+
 		}
 
 		function expirepasswordpublic() {
@@ -235,6 +245,68 @@ if( !class_exists( 'expirepasswordpublic') ) {
 
 		}
 
+		function add_expiration_stamp( $user, $username, $password ) {
+
+			// Check we have a user by this point
+			if ( is_a($user, 'WP_User') ) {
+				// We have a user, which we should if the standard authentication worked and passed it through
+				$expiration = get_user_meta( $user->ID, '_shrkey_password_expiration_start', true );
+
+				if( empty($expiration) ) {
+					// Check if we need to set a timestamp
+					$expirationperiod = shrkey_get_option( '_shrkey_expirepassword_expirationperiod', 0 );
+					if( $expirationperiod > 0 ) {
+						// We have a period - set the stamp
+						update_user_meta( $user->ID, '_shrkey_password_expiration_start', time() );
+					}
+				} else {
+					// We have an expiration - so check if it is over our limit and if so expire the password for the next login
+					$expirationperiod = shrkey_get_option( '_shrkey_expirepassword_expirationperiod', 0 );
+					if( $expirationperiod > 0 ) {
+						// We have a period - set check the stanp
+						if( strtotime( $expirationperiod . ' days', $expiration ) <= time() ) {
+							// We have expired
+							shrkey_set_usermeta_oncer( $user->ID, '_shrkey_password_expired', time() );
+						}
+					}
+				}
+
+			}
+
+			// return the user object
+			return $user;
+
+		}
+
+		function reset_password( $user ) {
+
+			// Check if we need to set a timestamp
+			$expirationperiod = shrkey_get_option( '_shrkey_expirepassword_expirationperiod', 0 );
+			if( $expirationperiod > 0 ) {
+				// We have a period - set the stamp
+				update_user_meta( $user->ID, '_shrkey_password_expiration_start', time() );
+			}
+
+		}
+
+		function update_profile( $errors, $update, $user ) {
+
+			if( $errors->get_error_code() ) {
+				return;
+			}
+
+			if( !empty( $_POST['pass1'] ) ) {
+
+				// Check if we need to set a timestamp
+				$expirationperiod = shrkey_get_option( '_shrkey_expirepassword_expirationperiod', 0 );
+				if( $expirationperiod > 0 ) {
+					// We have a period - set the stamp
+					update_user_meta( $user->ID, '_shrkey_password_expiration_start', time() );
+				}
+
+			}
+
+		}
 
 
 	}
