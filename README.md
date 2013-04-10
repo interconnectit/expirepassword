@@ -1,10 +1,12 @@
 # Expire Password
 
-Enables a site administrator to expire a users password and enforce a change to a new, different password before they can login in again
+Enables a site administrator to expire a users password and enforce a change to a new, different password before they can login again
 
 ## Description
 
-The Expire Password plugin allows a site administrator to manually expire a users password and force them to change their password the next time they login to their WordPress account. Future updates will allow the administrator to set new users passwords to be automatically expired, and to set an automatic expiration period.
+The Expire Password plugin allows a site administrator to manually expire a users password and force them to change their password the next time they login to their WordPress account.
+
+You can also set new users passwords to expire immediately, so the first thing they need to do when signing in is change their password, or have all user passwords expire after a certain period of time.
 
 ## Installation
 
