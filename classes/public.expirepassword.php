@@ -70,20 +70,20 @@ if( !class_exists( 'expirepasswordpublic') ) {
 				if ( isset($_POST['pass1']) && $_POST['pass1'] != $_POST['pass2'] ) {
 					$errors->add( 'password_reset_mismatch', __( 'The passwords do not match.', 'expirepassword' ) );
 				} else {
-					// 3. Check the password isn't the same as the last one
-					$existingpassword = $this->get_users_password_hash( $user->ID );
-					if( wp_check_password( $_POST['pass1'], $existingpassword ) ) {
-						// The password matches - we don't want them setting the same password as before...
-						$errors->add( 'password_reset_sameh', __( 'Please choose a different password from your previous one.', 'expirepassword' ) );
-					} else {
-						// Get the stored key
-						$thekey = shrkey_get_usermeta_oncer( $user->ID, '_shrkey_password_expired_key' );
-						// Get and parse the passed key
-						$passedkey = preg_replace('/[^a-z0-9]/i', '', $_POST['key']);
+					// 3. Check the key is valid - *before* accessing user data
+					// Get the stored key
+					$thekey = shrkey_get_usermeta_oncer( $user->ID, '_shrkey_password_expired_key' );
+					// Get and parse the passed key
+					$passedkey = preg_replace('/[^a-z0-9]/i', '', $_POST['key']);
 
-						// 4. Check the key matches
-						if( !empty( $thekey) && !empty($passedkey) && $thekey == $passedkey ) {
-							// The key is valid as well - so we need to reset these passwords
+					if( !empty( $thekey) && !empty($passedkey) && $thekey == $passedkey ) {
+						// The key is valid as well - so we need to check we are not resetting to the old password
+
+						$existingpassword = $this->get_users_password_hash( $user->ID );
+						if( wp_check_password( $_POST['pass1'], $existingpassword ) ) {
+							// The password matches - we don't want them setting the same password as before...
+							$errors->add( 'password_reset_sameh', __( 'Please choose a different password from your previous one.', 'expirepassword' ) );
+						} else {
 							$this->reset_expired_password( $user, $_POST['pass1'] );
 							// Remove the expired key setting
 							shrkey_delete_usermeta_oncer( $user->ID, '_shrkey_password_expired' );
@@ -92,15 +92,19 @@ if( !class_exists( 'expirepasswordpublic') ) {
 							login_header( __( 'Password Reset' ), '<p class="message reset-pass">' . __( 'Your password has been reset, please login again with your <strong>new</strong> password.', 'expirepassword' ) . ' <a href="' . esc_url( wp_login_url() ) . '">' . __( 'Log in', 'expirepassword' ) . '</a></p>' );
 							login_footer();
 							exit();
-
-						} else {
-							// The key either doesn't exist or doesn't match - possible security issue here, we want to return the user to the login page
-							// So we also blank the user out to force a re-login
-							unset( $user );
-							// Add in our error message
-							$errors->add( 'password_expired_nokey', __( 'Could not change password, please try again.', 'expirepassword' ) );
 						}
+
+					} else {
+						// The key either doesn't exist or doesn't match - possible security issue here, we want to produce an error message
+						// So we also blank the user out to force a re-login
+						unset( $user );
+						// Add in our error message
+						login_header( __( 'Password Reset' ), '<div id="login_error">' . __( 'Oops, something went wrong, please Login using your existing username and password and try again.', 'expirepassword' ) . ' <a href="' . esc_url( wp_login_url() ) . '">' . __( 'Log in', 'expirepassword' ) . '</a></div>' );
+						login_footer();
+						exit();
 					}
+
+
 				}
 			} else {
 				// The key either doesn't exist or doesn't match
