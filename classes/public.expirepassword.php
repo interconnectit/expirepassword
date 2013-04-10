@@ -21,6 +21,11 @@ if( !class_exists( 'expirepasswordpublic') ) {
 			// The hook to take over the expired password processing
 			add_action( 'login_form_expiredpassword', array( &$this, 'process_expired_password' ) );
 
+			// Hooks for the advanced settings
+
+			// 1. If a new user registers we want to force a password change
+			add_action( 'user_register', array( &$this, 'new_user_expiry' ) );
+
 		}
 
 		function expirepasswordpublic() {
@@ -214,6 +219,19 @@ if( !class_exists( 'expirepasswordpublic') ) {
 			}
 
 			return;
+
+		}
+
+		/*
+		*	Hooks for the admin interface functionality
+		*/
+
+		function new_user_expiry( $user_id ) {
+
+			if( shrkey_get_option( '_shrkey_expirepassword_expireimmediately', 'no' ) == 'yes' ) {
+				// We want to expire this password straight away
+				shrkey_set_usermeta_oncer( $user_id, '_shrkey_password_expired', time() );
+			}
 
 		}
 
