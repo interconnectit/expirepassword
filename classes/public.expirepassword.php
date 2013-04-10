@@ -89,12 +89,15 @@ if( !class_exists( 'expirepasswordpublic') ) {
 							shrkey_delete_usermeta_oncer( $user->ID, '_shrkey_password_expired' );
 
 							// Send the user back to the login
-							login_header( __( 'Password Reset' ), '<p class="message reset-pass">' . __( 'Your password has been reset, please login again.', 'expirepassword' ) . ' <a href="' . esc_url( wp_login_url() ) . '">' . __( 'Log in', 'expirepassword' ) . '</a></p>' );
+							login_header( __( 'Password Reset' ), '<p class="message reset-pass">' . __( 'Your password has been reset, please login again with your <strong>new</strong> password.', 'expirepassword' ) . ' <a href="' . esc_url( wp_login_url() ) . '">' . __( 'Log in', 'expirepassword' ) . '</a></p>' );
 							login_footer();
 							exit();
 
 						} else {
-							// The key either doesn't exist or doesn't match
+							// The key either doesn't exist or doesn't match - possible security issue here, we want to return the user to the login page
+							// So we also blank the user out to force a re-login
+							unset( $user );
+							// Add in our error message
 							$errors->add( 'password_expired_nokey', __( 'Could not change password, please try again.', 'expirepassword' ) );
 						}
 					}
@@ -111,7 +114,7 @@ if( !class_exists( 'expirepasswordpublic') ) {
 					$user = '';
 				}
 				// show the reset form again
-				$this->show_reset_password_form( $user, wp_generate_password(20, false), (isset($_POST['redirect_to'])) ? $_POST['redirect_to'] : false, $errors );
+				$this->show_reset_password_form( $user, wp_generate_password(35, false), (isset($_POST['redirect_to'])) ? $_POST['redirect_to'] : false, $errors );
 
 			}
 
@@ -189,7 +192,7 @@ if( !class_exists( 'expirepasswordpublic') ) {
 					remove_action( 'authenticate', 'wp_authenticate_username_password', 20, 3 );
 
 					// 4. Show the change password form as we want to force a password change at this point
-					$this->show_reset_password_form( $authenticated, wp_generate_password(20, false), (isset($_POST['redirect_to'])) ? $_POST['redirect_to'] : false );
+					$this->show_reset_password_form( $authenticated, wp_generate_password(35, false), (isset($_POST['redirect_to'])) ? $_POST['redirect_to'] : false );
 
 					// Exit because we don't want to continue processing or pass anything along the chain at this point
 					exit();
