@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: Expire Password
-Version: 1.0
+Version: 1.1
 Plugin URI: https://github.com/shrkey/expirepassword
 Description: Forces a user to change their password at their netx login, can be set to force a password change for a new user on first sign in
 Author: Shrkey
@@ -25,7 +25,8 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-// Include the plugin functions
+// Include the plugin config and functions files
+require_once('includes/config.php');
 require_once('includes/functions.php');
 
 if( is_admin() ) {
