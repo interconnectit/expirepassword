@@ -91,7 +91,7 @@ if( !class_exists( 'expirepasswordpublic') ) {
 				} else {
 					// 3. Check the key is valid - *before* accessing user data
 					// Get the stored key
-					$thekey = shrkey_get_usermeta_oncer( $user->ID, '_shrkey_password_expired_key' );
+					$thekey = shrkey_get_usermeta_timed_oncer( $user->ID, '_shrkey_password_expired_key' );
 					// Get and parse the passed key
 					$passedkey = preg_replace('/[^a-z0-9]/i', '', $_POST['key']);
 
@@ -153,8 +153,8 @@ if( !class_exists( 'expirepasswordpublic') ) {
 				exit();
 			}
 
-			// We are going to save our key to a oncer for later checking
-			shrkey_set_usermeta_oncer( $user->ID, '_shrkey_password_expired_key', $oncerkey );
+			// We are going to save our key to a oncer for later checking - but set it to expire in 5 minutes
+			shrkey_set_usermeta_timed_oncer( $user->ID, '_shrkey_password_expired_key', $oncerkey, '+5 minutes' );
 
 			login_header( __('Expired Password', 'expirepassword'), '<p class="message reset-pass">' . __('Your password has <strong>expired</strong>. Enter a new password below.', 'expirepassword') . '</p>', $errors );
 
