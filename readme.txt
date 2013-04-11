@@ -3,7 +3,7 @@ Contributors: shrkey
 Tags: security, admin, login
 Requires at least: 3.0
 Tested up to: 3.5.1
-Stable tag: 1.0
+Stable tag: 1.1
 
 Enables a site administrator to expire a users password and enforce a change to a new, different password before they can login again
 
