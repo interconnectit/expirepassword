@@ -1,6 +1,6 @@
 <?php
 
-if( !class_exists( 'expirepassword') ) {
+if( !class_exists( 'expirepasswordadmin') ) {
 
 	class expirepasswordadmin {
 
