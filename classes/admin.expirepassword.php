@@ -57,7 +57,7 @@ if( !class_exists( 'expirepasswordadmin') ) {
 			if( isset( $_POST['action'] ) ) {
 
 				switch( $_POST['action'] ) {
-					case 'upadteexpirepassword':	check_admin_referer( 'update-expirespasswordsettings' );
+					case 'updateexpirepassword':	check_admin_referer( 'update-expirespasswordsettings' );
 													if( is_network_admin() ) {
 														if( in_array( $_POST['expirepassword_limittonetworkadmin'], array( 'yes', 'no' ) ) ) {
 															update_site_option( '_shrkey_limit_expirepasswords_to_networkadmin', $_POST['expirepassword_limittonetworkadmin'] );
@@ -103,7 +103,7 @@ if( !class_exists( 'expirepasswordadmin') ) {
 			?>
 
 			<form action="?page=<?php echo esc_attr($_GET['page']); ?>" method="post">
-				<input type='hidden' name='action' value='upadteexpirepassword' />
+				<input type='hidden' name='action' value='updateexpirepassword' />
 				<?php
 				wp_original_referer_field( true, 'previous' );
 				wp_nonce_field( 'update-expirespasswordsettings' );
