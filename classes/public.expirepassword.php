@@ -107,10 +107,53 @@ if( !class_exists( 'expirepasswordpublic') ) {
 							// Remove the expired key setting
 							shrkey_delete_usermeta_oncer( $user->ID, '_shrkey_password_expired' );
 
-							// Send the user back to the login
-							login_header( __( 'Password Reset' ), '<p class="message reset-pass">' . __( 'Your password has been reset, please login again with your <strong>new</strong> password.', 'expirepassword' ) . ' <a href="' . esc_url( wp_login_url() ) . '">' . __( 'Log in', 'expirepassword' ) . '</a></p>' );
-							login_footer();
-							exit();
+							// Check what we want to do next
+							$autoauthenticate = shrkey_get_option( '_shrkey_expirepassword_autoauthenticate', 'no' );
+							if( $autoauthenticate == 'no' ) {
+								// Send the user back to the login
+								login_header( __( 'Password Reset' ), '<p class="message reset-pass">' . __( 'Your password has been reset, please login again with your <strong>new</strong> password.', 'expirepassword' ) . ' <a href="' . esc_url( wp_login_url() ) . '">' . __( 'Log in', 'expirepassword' ) . '</a></p>' );
+								login_footer();
+								exit();
+							} else {
+								// Authenticate and let them move on - first do some checks wp-login.php does
+								$secure_cookie = '';
+
+								// 1. See if we need to use ssl
+								if ( get_user_option('use_ssl', $user->ID) ) {
+									$secure_cookie = true;
+									force_ssl_admin(true);
+								}
+
+								// 2. check for a redirect
+								if ( isset( $_POST['redirect_to'] ) ) {
+									$redirect_to = $_POST['redirect_to'];
+									// Redirect to https if user wants ssl
+									if ( $secure_cookie && false !== strpos($redirect_to, 'wp-admin') )
+										$redirect_to = preg_replace('|^http://|', 'https://', $redirect_to);
+								} else {
+									$redirect_to = admin_url();
+								}
+
+								// 3. Run the filter for nicities
+								$redirect_to = apply_filters('login_redirect', $redirect_to, isset( $_POST['redirect_to'] ) ? $_POST['redirect_to'] : '', $user);
+
+								// 4. Authenticate the user
+								wp_set_auth_cookie($user->ID, false, $secure_cookie);
+
+								// 5. Finally redirect to the correct place
+								if ( ( empty( $redirect_to ) || $redirect_to == 'wp-admin/' || $redirect_to == admin_url() ) ) {
+									// If the user doesn't belong to a blog, send them to user admin. If the user can't edit posts, send them to their profile.
+									if ( is_multisite() && !get_active_blog_for_user($user->ID) && !is_super_admin( $user->ID ) )
+										$redirect_to = user_admin_url();
+									elseif ( is_multisite() && !$user->has_cap('read') )
+										$redirect_to = get_dashboard_url( $user->ID );
+									elseif ( !$user->has_cap('edit_posts') )
+										$redirect_to = admin_url('profile.php');
+								}
+								wp_safe_redirect($redirect_to);
+								exit();
+							}
+
 						}
 
 					} else {
@@ -145,7 +188,7 @@ if( !class_exists( 'expirepasswordpublic') ) {
 
 		}
 
-		function show_reset_password_form( $user, $oncerkey, $redirectto = false, $errors = false ) {
+		function show_reset_password_form( $user, $oncerkey, $redirect_to = false, $errors = false ) {
 
 			if ( !is_a($user, 'WP_User') ) {
 				// Ooops we don't have a user to use :( return to the login form as this shouldn't happen except in hack attempts

@@ -72,6 +72,10 @@ if( !class_exists( 'expirepassword') ) {
 														shrkey_update_option( '_shrkey_expirepassword_expirationperiod', $_POST['expirepassword_expirationperiod'] );
 													}
 
+													if( in_array( $_POST['expirepassword_autoauthenticate'], array( 'yes', 'no' ) ) ) {
+														shrkey_update_option( '_shrkey_expirepassword_autoauthenticate', $_POST['expirepassword_autoauthenticate'] );
+													}
+
 													wp_safe_redirect( add_query_arg( 'msg', 1, wp_get_referer() ) );
 													break;
 				}
@@ -181,6 +185,25 @@ if( !class_exists( 'expirepassword') ) {
 											}
 										}
 										?>
+									</select>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+
+					<h3><?php _e('Post Password Change Settings','expirepassword'); ?></h3>
+					<p><?php _e('Once a password has been changed, you can either force the user to login again with the new details, or complete the authentication process and log them in automatically.','expirepassword'); ?></p>
+					<table class="form-table">
+						<tbody>
+							<tr valign="top">
+								<th scope="row">
+									<label for="expirepassword_autoauthenticate"><?php _e( 'Force Re-Login','expirepassword' ); ?></label>
+								</th>
+								<td>
+									<?php $autoauthenticate = shrkey_get_option( '_shrkey_expirepassword_autoauthenticate', 'no' ); ?>
+									<select name='expirepassword_autoauthenticate'>
+										<option value='yes' <?php selected( 'yes', $expireimmediately ); ?>><?php _e( 'No, let the user carry on to their destination', 'expirepassword' ); ?></option>
+										<option value='no' <?php selected( 'no', $expireimmediately ); ?>><?php _e( 'Yes, send the user to the login page', 'expirepassword' ); ?></option>
 									</select>
 								</td>
 							</tr>
