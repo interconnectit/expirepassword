@@ -196,6 +196,9 @@ if( !class_exists( 'expirepasswordpublic') ) {
 				exit();
 			}
 
+			wp_enqueue_script('utils');
+			wp_enqueue_script('user-profile');
+
 			// We are going to save our key to a oncer for later checking - but set it to expire in 5 minutes
 			shrkey_set_usermeta_timed_oncer( $user->ID, '_shrkey_password_expired_key', $oncerkey, '+5 minutes' );
 
