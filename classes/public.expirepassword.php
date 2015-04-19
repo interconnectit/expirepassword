@@ -85,10 +85,18 @@ if( !class_exists( 'expirepasswordpublic') ) {
 			if ( $user = get_user_by('login', $user_name) ) {
 				// User exists - move forward
 
-				// 2. Check the passwords have been entered and that they match
+				// 2a. Check the passwords have been entered and that they match
 				if ( isset($_POST['pass1']) && $_POST['pass1'] != $_POST['pass2'] ) {
 					$errors->add( 'password_reset_mismatch', __( 'The passwords do not match.', 'expirepassword' ) );
-				} else {
+				} 
+				
+				// 2b. Check for minimum password requeriments
+				elseif (strlen($_POST['pass1']) < 8) $errors->add( 'password_reset_requeriments', __('The password has less than 8 characters.', 'expirepassword') );
+				elseif ( ! preg_match('/[a-z]+/', $_POST['pass1']) ) $errors->add( 'password_reset_requeriments', __('The password has no lowercase letters.', 'expirepassword') );
+				elseif ( ! preg_match('/[0-9]+/', $_POST['pass1']) ) $errors->add( 'password_reset_requeriments', __('The password has no numbers.', 'expirepassword') );
+				elseif ( ! preg_match('/[A-Z]+', $_POST['pass1']) ) $errors->add( 'password_reset_requeriments', __('The password has no uppercase letters.', 'expirepassword') );
+				
+				else {
 					// 3. Check the key is valid - *before* accessing user data
 					// Get the stored key
 					$thekey = shrkey_get_usermeta_timed_oncer( $user->ID, '_shrkey_password_expired_key' );
