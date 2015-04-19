@@ -94,7 +94,7 @@ if( !class_exists( 'expirepasswordpublic') ) {
 				elseif (strlen($_POST['pass1']) < 8) $errors->add( 'password_reset_requeriments', __('The password has less than 8 characters.', 'expirepassword') );
 				elseif ( ! preg_match('/[a-z]+/', $_POST['pass1']) ) $errors->add( 'password_reset_requeriments', __('The password has no lowercase letters.', 'expirepassword') );
 				elseif ( ! preg_match('/[0-9]+/', $_POST['pass1']) ) $errors->add( 'password_reset_requeriments', __('The password has no numbers.', 'expirepassword') );
-				elseif ( ! preg_match('/[A-Z]+', $_POST['pass1']) ) $errors->add( 'password_reset_requeriments', __('The password has no uppercase letters.', 'expirepassword') );
+				elseif ( ! preg_match('/[A-Z]+/', $_POST['pass1']) ) $errors->add( 'password_reset_requeriments', __('The password has no uppercase letters.', 'expirepassword') );
 				
 				else {
 					// 3. Check the key is valid - *before* accessing user data
