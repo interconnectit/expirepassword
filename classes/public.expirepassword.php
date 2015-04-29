@@ -85,11 +85,14 @@ if( !class_exists( 'expirepasswordpublic') ) {
 			if ( $user = get_user_by('login', $user_name) ) {
 				// User exists - move forward
 
-				// 2. Check the passwords have been entered and that they match
-				if ( isset($_POST['pass1']) && $_POST['pass1'] != $_POST['pass2'] ) {
-					$errors->add( 'password_reset_mismatch', __( 'The passwords do not match.', 'expirepassword' ) );
-				} else {
-					// 3. Check the key is valid - *before* accessing user data
+                // 2. Check a password has been entered
+                if ( $_POST['pass1'] === '' ) {
+                    $errors->add( 'password_reset_blank', __( 'Please enter a new password.', 'expirepassword' ) );
+                // 3. Check if passwords match
+                } else if ( $_POST['pass1'] !== $_POST['pass2'] ) {
+                    $errors->add( 'password_reset_mismatch', __( 'The passwords do not match.', 'expirepassword' ) );
+                } else {
+                    // 4. Check the key is valid - *before* accessing user data
 					// Get the stored key
 					$thekey = shrkey_get_usermeta_timed_oncer( $user->ID, '_shrkey_password_expired_key' );
 					// Get and parse the passed key
