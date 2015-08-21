@@ -86,7 +86,7 @@ if( !class_exists( 'expirepasswordpublic') ) {
 				// User exists - move forward
 
 				// 2. Check the passwords have been entered and that they match
-				if ( isset($_POST['pass1']) && $_POST['pass1'] != $_POST['pass2'] ) {
+				if ( !isset($_POST['pass1-text']) && isset($_POST['pass1']) && $_POST['pass1'] != $_POST['pass2'] ) {
 					$errors->add( 'password_reset_mismatch', __( 'The passwords do not match.', 'expirepassword' ) );
 				} else {
 					// 3. Check the key is valid - *before* accessing user data
